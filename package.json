@@ -1,0 +1,18 @@
+{
+  "name": "sare-attendance-portal",
+  "version": "1.0.0",
+  "description": "Takes and keeps track of attedence of all members from S.A.R.E",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "install": "cd client && npm i"
+  },
+  "keywords": [
+    "attendence"
+  ],
+  "author": "Fernando Valle",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
