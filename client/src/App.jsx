@@ -6,7 +6,7 @@ import ErrorPage from './pages/ErrorPage.jsx';
 import AttendancePage from "./pages/AttendancePage.jsx";
 import MeetingsPage from "./pages/MeetingsPage.jsx";
 import AppBasePage from "./pages/AppBasePage.jsx";
-import MembersPage from "./pages/Members.jsx";
+import MembersPage from "./pages/MembersPage.jsx";
 
 function updateTheme(theme) {
   localStorage.setItem("theme", theme);
