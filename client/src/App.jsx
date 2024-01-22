@@ -1,34 +1,62 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { useState, useEffect } from 'react';
+
+import AdminSignin from './pages/AdminSignin.jsx';
+import ErrorPage from './pages/ErrorPage.jsx';
+import AttendancePage from "./pages/AttendancePage.jsx";
+import MeetingsPage from "./pages/MeetingsPage.jsx";
+import AppBasePage from "./pages/AppBasePage.jsx";
+import MembersPage from "./pages/Members.jsx";
+
+function updateTheme(theme) {
+  localStorage.setItem("theme", theme);
+
+  const rootElement = document.getElementById('root');
+  rootElement.dataset.bsTheme = theme;
+  rootElement.classList.remove("bg-light", "bg-dark");
+  rootElement.classList.add(`bg-${theme}`);
+  setTimeout(() => {rootElement.style.transition = "background-color 0.5s cubic-bezier(0.25, 1, 0.5, 1)";}, 100); // Don't apply tranisition immediatley
+}
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [theme, setTheme] = useState(localStorage.getItem("theme") ? localStorage.getItem("theme") : "dark");
+
+  updateTheme(theme); // Set theme as soon as app starts initializing
+
+  const router = createBrowserRouter([
+    {
+      path: "/",
+      element: <AdminSignin theme={theme} setTheme={setTheme} />,
+      errorElement: <ErrorPage theme={theme} setTheme={setTheme} />
+    },
+    {
+      path: "/admin",
+      element: <AppBasePage theme={theme} setTheme={setTheme} />,
+      errorElement: <ErrorPage theme={theme} setTheme={setTheme} />,
+      children: [
+        {
+          path: "/admin/attendance",
+          element: <AttendancePage theme={theme} setTheme={setTheme} />,
+          errorElement: <ErrorPage theme={theme} setTheme={setTheme} />
+        },
+        {
+          path: "/admin/meetings",
+          element: <MeetingsPage theme={theme} setTheme={setTheme} />,
+          errorElement: <ErrorPage theme={theme} setTheme={setTheme} />
+        },
+        {
+          path: "/admin/members",
+          element: <MembersPage theme={theme} setTheme={setTheme} />,
+          errorElement: <ErrorPage theme={theme} setTheme={setTheme} />
+        }
+      ]
+    },
+  ]);
+
+  useEffect(() => { updateTheme(theme)}, [theme]);
 
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <RouterProvider router={router} />
   )
 }
 
