@@ -18,3 +18,18 @@ html, body {
   display: flex;
   flex-direction: column;
 }
+
+#signin-form {
+  width: 20rem;
+}
+
+#logo-display-area {
+  background-image: url("assets/images/logo/512.png");
+  background-size: cover;
+  aspect-ratio: 1;
+}
+
+
+#theme-toggler-icon {
+  transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1) !important;
+}
