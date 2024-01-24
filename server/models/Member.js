@@ -39,11 +39,17 @@ const memberSchema = new mongoose.Schema({
     required: true,
     default: Date.now(),
   },
+  sareID: {
+    type: Number,
+    required: true,
+    unique: true
+  },
   email: {
     type: String,
     maxLength: 256,
     required: true,
-    validate: [/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/, "Invalid email"]
+    validate: [/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/, "Invalid email"],
+    unique: true
   },
   phone: {
     type: String,
