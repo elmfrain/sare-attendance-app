@@ -56,6 +56,8 @@ const typeDefs = `
 
   type Mutation {
     loginAdmin(username: String!, password: String!): Auth
+
+    createMeeting(date: String!, type: String!, fromTime: String!, toTime: String!, title: String, at: String, teams: [String]): Meeting
   }
 `;
 

@@ -19,6 +19,15 @@ const resolvers = {
 
       const token = signToken(admin);
       return { token, admin }
+    },
+
+    createMeeting: async (parent, args, context) => {
+      if(!context.admin)
+        throw AuthenticationError;
+
+      const newMeeting = await Meeting.create({ ...args });
+
+      return newMeeting;
     }
   }
 };

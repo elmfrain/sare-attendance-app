@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import CalendarDayItem from "./CalendarDayItem";
 import dayjs from "../../node_modules/dayjs/esm";
+import { useMutation } from "@apollo/client";
+import { CREATE_MEETING } from "../utils/mutations";
 
 function getDuration(fromTime, toTime) {
   fromTime = dayjs(fromTime);
@@ -20,29 +22,45 @@ export default function NewMeetingForm() {
   const dateSelector = useRef();
   const timeRangeSelector = useRef();
   const attendanceTypeSelectors = useRef();
+  const createButton = useRef();
 
-  const[date, setDate] = useState(dayjs().format('YYYY-MM-DD'));
-  const[duration, setDuration] = useState("1 hour");
+  const [createMeeting, { data, loading, error }] = useMutation(CREATE_MEETING);
+
+  const[formState, setFormState] = useState({
+    date: dayjs().format('YYYY-MM-DD'),
+    type: "on-site",
+    fromTime: null,
+    toTime: null,
+    teams: ["All teams"]
+  });
+
+  const[warning, setWarning] = useState(null);
+  const[duration, setDuration] = useState("--");
 
   function onDateChange(e) {
     const toTime = timeRangeSelector.current.querySelector("#to-time").value.split(":");
+
+    if(toTime.length < 2) return;
+
     const date = dayjs(e.target.value).hour(toTime[0]).minute(toTime[1]);
 
     if(date.isBefore(dayjs()))
-      setDate(null);
+      setFormState({ ...formState, date: null });
     else
-      setDate(e.target.value);
+      setFormState({ ...formState, date: e.target.value });
   }
 
   function onTimeRangeChange(e) {
     onDateChange({target: {value: dateSelector.current.value}});
 
+    console.log(formState);
     var fromTime = timeRangeSelector.current.querySelector("#from-time").value.split(":");
     var toTime = timeRangeSelector.current.querySelector("#to-time").value.split(":");
 
     fromTime = dayjs().hour(fromTime[0]).minute(fromTime[1]);
     toTime = dayjs().hour(toTime[0]).minute(toTime[1]);
     
+    setFormState({ ...formState, [e.target.name]: e.target.value });
     setDuration(getDuration(fromTime, toTime));
   }
 
@@ -54,11 +72,17 @@ export default function NewMeetingForm() {
   }, [duration]);
 
   useEffect(() => {
-    if(date === null)
+    if(formState.date === null)
       dateSelector.current.classList.add("is-invalid");
     else
       dateSelector.current.classList.remove("is-invalid");
-  }, [date]);
+
+    let disableCreateButton = false;
+    Object.entries(formState).forEach(([key, value]) => { if(!value) disableCreateButton = true; });
+    disableCreateButton = disableCreateButton || !duration;
+
+    createButton.current.disabled = disableCreateButton; 
+  }, [formState]);
 
   function handleSemiRadioButtonsClick(e) {
     if (e.target.tagName !== "INPUT")
@@ -66,29 +90,32 @@ export default function NewMeetingForm() {
 
     const allTeamsCheck = attendanceTypeSelectors.current.querySelector("#all-teams-check");
 
-    if(attendanceTypeSelectors.current.querySelectorAll("input:checked").length === 0) {
+    if(attendanceTypeSelectors.current.querySelectorAll("input:checked").length === 0)
       e.target.checked = true;
-      return;
+    else if(attendanceTypeSelectors.current.querySelectorAll("input:checked").length === 4 && !allTeamsCheck.checked) {
+      attendanceTypeSelectors.current.querySelectorAll("input").forEach(checkbox => { checkbox.checked = false; });
+      allTeamsCheck.checked = true;
+    }
+    else if (e.target.id !== "all-teams-check" && e.target.checked)
+      attendanceTypeSelectors.current.querySelector("#all-teams-check").checked = false;
+    else if (allTeamsCheck.checked) {
+      attendanceTypeSelectors.current.querySelectorAll("input").forEach(checkbox => { checkbox.checked = false; });
+      allTeamsCheck.checked = true;
     }
 
-    if(attendanceTypeSelectors.current.querySelectorAll("input:checked").length === 4 && !allTeamsCheck.checked) {
-      attendanceTypeSelectors.current.querySelectorAll("input").forEach(checkbox => { checkbox.checked = false; });
-      allTeamsCheck.checked = true;
-      return;
-    }
-    if (e.target.id !== "all-teams-check" && e.target.checked) {
-      attendanceTypeSelectors.current.querySelector("#all-teams-check").checked = false;
-      return;
-    }
-    if (allTeamsCheck.checked) {
-      attendanceTypeSelectors.current.querySelectorAll("input").forEach(checkbox => { checkbox.checked = false; });
-      allTeamsCheck.checked = true;
-      return;
-    }
+    const selectedTeams = [];
+    attendanceTypeSelectors.current.querySelectorAll("input").forEach(checkbox => { if (checkbox.checked) selectedTeams.push(checkbox.value); });
+    setFormState({ ...formState, teams: selectedTeams });
   }
 
-  function onSubmit(e) {
+  async function onSubmit(e) {
     e.preventDefault();
+
+    try {
+      await createMeeting({ variables: formState });
+    } catch(e) {
+      setWarning(e.message);
+    }
   }
 
   return (
@@ -100,41 +127,41 @@ export default function NewMeetingForm() {
     <form onSubmit={onSubmit}>
       <div className="card-body d-flex flex-column gap-3">
         <div className="input-group">
-          <input type="text" className="form-control" placeholder="Meeting" />
+          <input type="text" className="form-control" placeholder="Meeting" onInput={(e) => setFormState({ ...formState, title: e.target.value })} />
           <span className="input-group-text" id="basic-addon1">@</span>
-          <input type="text" className="form-control" placeholder="Room/URL" />
+          <input type="text" className="form-control" placeholder="Room/URL" onInput={(e) => setFormState({ ...formState, at: e.target.value })} />
         </div>
         <div className="d-flex gap-3 align-items-center">
-          <CalendarDayItem date={date} />
+          <CalendarDayItem date={formState.date} />
           <div className="d-flex flex-column gap-3 align-items-end flex-grow-1">
             <div className="input-group">
               <span className="input-group-text">Date</span>
               <input type="date" className="form-control" ref={dateSelector} onChange={onDateChange} min={dayjs().format('YYYY-MM-DD')} defaultValue={dayjs().format('YYYY-MM-DD')}/>
               <span className="input-group-text">Type</span>
-              <select className="form-select">
-                <option>On-site</option>
-                <option>Remote</option>
+              <select className="form-select" onChange={(e) => setFormState({ ...formState, type: e.target.value })}>
+                <option value="on-site" >On-site</option>
+                <option value="remote" >Remote</option>
               </select>
             </div>
             <div className="input-group" ref={timeRangeSelector} onChange={onTimeRangeChange}>
               <span className="input-group-text">From</span>
-              <input id="from-time" type="time" className="form-control" defaultValue={dayjs().format('HH:mm')} />
+              <input name="fromTime" id="from-time" type="time" className="form-control" />
               <span className="input-group-text">To</span>
-              <input id="to-time" type="time" className="form-control" defaultValue={dayjs().add(1, 'hour').format('HH:mm')}/>
+              <input name="toTime" id="to-time" type="time" className="form-control"/>
             </div>
-            { duration && date ? (<div><strong>Duration: </strong>{duration}</div>) : <strong className="text-danger">{ !duration ? "Invalid time range" : "Past date and time"}</strong> }
+            { duration && formState.date ? (<div><strong>Duration: </strong>{duration}</div>) : <strong className="text-danger">{ !duration ? "Invalid time range" : "Past date and time"}</strong> }
           </div>
         </div>
         <div className="btn-group" ref={attendanceTypeSelectors} onClick={handleSemiRadioButtonsClick}>
-          <input type="checkbox" className="btn-check" id="all-teams-check" autoComplete="off" defaultChecked={true} />
+          <input value="all-teams" type="checkbox" className="btn-check" id="all-teams-check" autoComplete="off" defaultChecked={true} />
           <label className="btn btn-sm btn-outline-primary" htmlFor="all-teams-check">All teams</label>
-          <input type="checkbox" className="btn-check" id="executive-check" autoComplete="off" />
+          <input value="executive" type="checkbox" className="btn-check" id="executive-check" autoComplete="off" />
           <label className="btn btn-sm btn-outline-primary" htmlFor="executive-check">Executive</label>
-          <input type="checkbox" className="btn-check" id="telemetry-check" autoComplete="off" />
+          <input value="telemetry" type="checkbox" className="btn-check" id="telemetry-check" autoComplete="off" />
           <label className="btn btn-sm btn-outline-primary" htmlFor="telemetry-check">Telemetry</label>
-          <input type="checkbox" className="btn-check" id="structures-check" autoComplete="off" />
+          <input value="structures" type="checkbox" className="btn-check" id="structures-check" autoComplete="off" />
           <label className="btn btn-sm btn-outline-primary" htmlFor="structures-check">Structures</label>
-          <input type="checkbox" className="btn-check" id="research-check" autoComplete="off" />
+          <input value="research" type="checkbox" className="btn-check" id="research-check" autoComplete="off" />
           <label className="btn btn-sm btn-outline-primary" htmlFor="research-check">Research</label>
         </div>
         <div className="d-flex gap-2 align-items-center form-check">
@@ -149,9 +176,18 @@ export default function NewMeetingForm() {
           <i className="fa-brands fa-discord text-primary fs-4" />
           <div className="text-secondary">(Not Implemented)</div>
         </div>
+        <div className="my-0 form-text text-danger">{warning}</div>
       </div>
       <div className="card-footer d-flex justify-content-end">
-        <button type="submit" className="btn btn-primary">Create</button>
+        <button ref={createButton} type="submit" className="btn btn-primary" disabled> {
+          loading ? (
+            <>
+              <span className="spinner-border spinner-border-sm" aria-hidden="true"></span>
+              <span role="status">Creating...</span>
+            </>
+          ) : ("Create")
+        }
+        </button>
       </div>
     </form>
     </div>
