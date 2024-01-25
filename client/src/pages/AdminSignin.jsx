@@ -1,7 +1,12 @@
 import NavigationBar from "../components/NavigationBar";
 import LoginForm from "../components/LoginForm";
+import AuthService from "../utils/auth";
 
 export default function AdminSignin({theme, setTheme}) {
+
+  if(AuthService.isLoggedIn())
+    window.location.assign('/admin/attendance');
+
   return (
     <div className="d-flex flex-column vh-100 bg-dark">
       <NavigationBar theme={theme} setTheme={setTheme} />
