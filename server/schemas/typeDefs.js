@@ -55,7 +55,7 @@ const typeDefs = `
   }
 
   type Mutation {
-    login(username: String!, password: String!): Auth
+    loginAdmin(username: String!, password: String!): Auth
   }
 `;
 

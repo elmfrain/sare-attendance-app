@@ -7,11 +7,11 @@ const resolvers = {
   },
 
   Mutation: {
-    login: async (parent, { username, password }) => {
+    loginAdmin: async (parent, { username, password }) => {
       const admin = await Admin.findOne({ username });
 
       if(!admin)
-        throw AuthenticationError.message = "wtf";
+        throw AuthenticationError;
 
       const correctPassword = await admin.isCorrectPassword(password);
       if(!correctPassword)
