@@ -7,6 +7,27 @@ import AttendancePage from "./pages/AttendancePage.jsx";
 import MeetingsPage from "./pages/MeetingsPage.jsx";
 import AppBasePage from "./pages/AppBasePage.jsx";
 import MembersPage from "./pages/MembersPage.jsx";
+import { ApolloClient, ApolloProvider, createHttpLink, InMemoryCache } from "@apollo/client";
+import { setContext } from '@apollo/client/link/context';
+import AuthService from "./utils/auth.js";
+
+const gqlLink = createHttpLink({ uri: '/graphql' });
+
+const authLink = setContext((_, { headers }) => {
+  const token = AuthService.getToken();
+
+  return {
+    headers: {
+      ...headers,
+      authorization: token ? `Bearer ${token}` : ''
+    }
+  };
+});
+
+const gqlClient = new ApolloClient({
+  link: authLink.concat(gqlLink),
+  cache: new InMemoryCache()
+});
 
 function updateTheme(theme) {
   localStorage.setItem("theme", theme);
@@ -56,7 +77,9 @@ function App() {
   useEffect(() => { updateTheme(theme)}, [theme]);
 
   return (
-    <RouterProvider router={router} />
+    <ApolloProvider client={gqlClient}>
+      <RouterProvider router={router} />
+    </ApolloProvider>
   )
 }
 
