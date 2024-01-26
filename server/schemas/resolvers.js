@@ -16,6 +16,13 @@ const resolvers = {
         throw AuthenticationError;
 
       return Member.findOne({email}).populate("emergencyContact");
+    },
+
+    members: async (parent, args, context) => {
+      if(!context.admin)
+        throw AuthenticationError;
+
+      return Member.find();
     }
   },
 
@@ -35,10 +42,12 @@ const resolvers = {
     },
 
     createMeeting: async (parent, args, context) => {
-      if(!context.admin)
+      if (!context.admin)
         throw AuthenticationError;
 
-      const newMeeting = await Meeting.create({ ...args });
+      const execCount = await Member.countDocuments({ rank: { $in: ["executive", "president"] } });
+
+      const newMeeting = await Meeting.create({ ...args, numExecs: execCount});
 
       return newMeeting;
     },
@@ -47,10 +56,12 @@ const resolvers = {
       if(!context.admin)
         throw AuthenticationError;
 
-      const president = await Member.findOne({rank: "president"});
+      if(args.rank === "president") {
+        const president = await Member.findOne({rank: "president"}).exec();
 
-      if(args.role === "president" && president)
-        throw new GraphQLError("There can only be one president");
+        if(president)
+          throw new GraphQLError("There can only be one president");
+      }
 
       const newMember = await Member.create({...args});
 

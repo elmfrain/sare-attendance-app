@@ -151,6 +151,9 @@ export default function NewMemberForm() {
 
       setWarning(null);
       setEMWarning(null);
+
+      window.location.reload();
+      
     } catch(e) {
       setWarning(e.message);
     }

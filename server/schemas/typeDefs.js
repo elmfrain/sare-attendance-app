@@ -8,6 +8,9 @@ const typeDefs = `
     fromTime: String!
     toTime: String!
     teams: [String]!
+    execsAttended: Int!
+    membersAttended: Int!
+    numExecs: Int!
   }
 
   type EmergencyContact {
@@ -54,6 +57,7 @@ const typeDefs = `
   type Query {
     memberBySareID(sareID: Int!): Member
     memberByEmail(email: String!): Member
+    members: [Member]
   }
 
   type Mutation {

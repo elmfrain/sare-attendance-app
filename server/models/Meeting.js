@@ -40,6 +40,21 @@ const meetingSchema = new mongoose.Schema({
     required: true,
     default: ["All teams"],
     validate: [(val) => val.length <= 16, "Max number of teams exceeded"]
+  },
+  execsAttended: {
+    type: Number,
+    min: 0,
+    default: 0
+  },
+  membersAttended: {
+    type: Number,
+    min: 0,
+    default: 0
+  },
+  numExecs: {
+    type: Number,
+    min: 0,
+    required: true
   }
 });
 

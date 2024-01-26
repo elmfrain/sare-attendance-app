@@ -15,3 +15,15 @@ export const IS_EMAIL_TAKEN = gql`
     }
   }
 `;
+
+export const LIST_MEMBERS = gql`
+query Members {
+  members {
+    firstName
+    lastName
+    rank
+    sareID
+    joinDate
+  }
+}
+`;

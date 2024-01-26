@@ -2,10 +2,29 @@ import { useState } from "react";
 
 import RankTag from "./RankTag";
 import SearchBar from "./SearchBar";
+import { useQuery } from "@apollo/client";
+import { LIST_MEMBERS } from "../utils/queries";
+
+import dayjs from "dayjs/esm";
+import advancedFormat from "dayjs/esm/plugin/advancedFormat";
+dayjs.extend(advancedFormat);
+
+function MemberRow({ member }) {
+  return (
+    <tr>
+      <td><img className="sm-pfp" src="/assets/images/default-pfp.jpg"/>{`${member.firstName} ${member.lastName}`}</td>
+      <td><RankTag rank={member.rank} showName={true} /></td>
+      <td>{member.sareID}</td>
+      <td>{dayjs(member.joinDate).format('MMMM Do, YYYY')}</td>
+    </tr>
+  );
+}
 
 export default function MembersTable() {
   const [sortBy, setSortBy] = useState("Rank");
   const [sortAscending, setSortAcending] = useState(false);
+
+  const {loading: membersLoading, data: membersData} = useQuery(LIST_MEMBERS);
 
   function onSelectSort(e) {
     setSortBy(e.target.value);
@@ -28,19 +47,17 @@ export default function MembersTable() {
             <option value="leave-time">Leave Time</option>
           </select>
         </div>
+        <span className={`spinner-border spinner-border-sm ${ membersLoading ? "" : "d-none" }`} role="status" aria-hidden="true" />
         <div className="flex-grow-1" />
         <SearchBar />
       </div>
       <div className="card-body p-0">
         <table className="w-100 attendance-table">
           <thead>
-            <tr><th className="w-40">Member</th><th>Rank</th><th>SARE ID</th><th>Join Date</th><th>Hours</th></tr>
+            <tr><th className="w-40">Member</th><th>Rank</th><th>SARE ID</th><th>Join Date</th></tr>
           </thead>
           <tbody>
-            <tr><td><img className="sm-pfp" src="/assets/images/default-pfp.jpg"/>Ferdinando Herina</td><td><RankTag rank="president" showName={true} /></td><td>1234337</td><td>April 1st, 2021</td><td>120</td></tr>
-            <tr><td><img className="sm-pfp" src="/assets/images/default-pfp.jpg"/>Migul Torres</td><td><RankTag rank="executive" showName={true} /></td><td>95695695</td><td>Feburary 2nd, 2021</td><td>120</td></tr>
-            <tr><td><img className="sm-pfp" src="/assets/images/default-pfp.jpg"/>Jesus NaN</td><td><RankTag rank="active-member" showName={true} /></td><td>8008135</td><td>September 21st, 2023</td><td>120</td></tr>
-            <tr><td><img className="sm-pfp" src="/assets/images/default-pfp.jpg"/>Josh Drake</td><td><RankTag rank="member" showName={true} /></td><td>1234337</td><td>October 15th, 2022</td><td>120</td></tr>
+            { membersData ? membersData.members.map(member => <MemberRow member={member} key={member.sareID} />) : null }
           </tbody>
         </table>
       </div>
