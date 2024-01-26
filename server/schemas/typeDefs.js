@@ -58,6 +58,11 @@ const typeDefs = `
     memberBySareID(sareID: Int!): Member
     memberByEmail(email: String!): Member
     members: [Member]
+
+    meetings: [Meeting]
+    latestMeeting: Meeting
+
+    attendances(meeting: ID!): [Attendance]
   }
 
   type Mutation {
@@ -68,6 +73,8 @@ const typeDefs = `
     createMember(firstName: String!, lastName: String!, sareID: Int!, email: String!, rank: String!, joinDate: String, phone: String, role: String, emergencyContact: ID): Member
 
     createEmergencyContact(name: String!, phone: String!, relationship: String): EmergencyContact
+
+    attend(meeting: ID!, sareID: Int!): Attendance
   }
 `;
 

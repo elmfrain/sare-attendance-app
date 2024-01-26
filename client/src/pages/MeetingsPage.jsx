@@ -1,5 +1,7 @@
+import { useQuery } from "@apollo/client";
 import MeetingItem from "../components/MeetingItem";
 import NewMeetingForm from "../components/NewMeetingForm";
+import { LIST_MEETINGS } from "../utils/queries";
 
 function Divider({title}) {
   return (
@@ -12,14 +14,15 @@ function Divider({title}) {
 }
 
 export default function MeetingsPage() {
+  const { data, loading, error } = useQuery(LIST_MEETINGS);
+
   return (
     <div className="d-flex flex-column gap-3 text-secondary">
       <NewMeetingForm />
       <Divider title="Past Meetings"/>
-      <MeetingItem />
-      <MeetingItem />
-      <MeetingItem />
-      <MeetingItem />
+      <div className={`spinner-border ${ loading ? "" : "d-none"}`} />
+      
+      { data ? data.meetings.map(meeting => <MeetingItem meeting={meeting} key={meeting._id} />) : null }
     </div>
   )
 }

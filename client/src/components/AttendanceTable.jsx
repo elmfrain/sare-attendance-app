@@ -1,7 +1,19 @@
 import { useState } from "react";
 import RankTag from "./RankTag";
 
-export default function AttendanceTable() {
+function AttendanceRow({attendance}) {
+  return (
+    <tr>
+      <td>{attendance.member.firstName + " " + attendance.member.lastName}</td>
+      <td>{attendance.member.sareID}</td>
+      <td><RankTag rank={attendance.member.rank} /></td>
+      <td>{attendance.joinTime}</td>
+      <td>{attendance.leaveTime ? attendance.leaveTime : "--"}</td>
+    </tr>
+  );
+}
+
+export default function AttendanceTable({attendances}) {
   const [showAbsent, setShowAbsent] = useState(false);
   const [sortBy, setSortBy] = useState("Rank");
   const [sortAscending, setSortAcending] = useState(false);
@@ -42,11 +54,7 @@ export default function AttendanceTable() {
             <tr><th className="w-40">Member</th><th>SARE ID</th><th>Rank</th><th>Join Time</th><th>Leave Time</th></tr>
           </thead>
           <tbody>
-            <tr><td>Ferdinando Herina</td><td>1234337</td><td><RankTag rank="president" /></td><td>10:01am</td><td>5:25pm</td></tr>
-            <tr><td>Migul Torres</td><td>95695695</td><td><RankTag rank="executive" /></td><td>10:01am</td><td>5:25pm</td></tr>
-            <tr><td>Jesus Nandez</td><td>8008135</td><td><RankTag rank="active-member" /></td><td>10:01am</td><td>5:25pm</td></tr>
-            <tr><td>Josh Drake</td><td>11223344</td><td><RankTag rank="member" /></td><td>10:01am</td><td>5:25pm</td></tr>
-            <tr><td>Random Ass Dude</td><td>0000000</td><td><RankTag /></td><td>-10:01am</td><td>50:60pm</td></tr>
+            { attendances.map(attendance => <AttendanceRow attendance={attendance} key={attendance._id} />) }
           </tbody>
         </table>
       </div>

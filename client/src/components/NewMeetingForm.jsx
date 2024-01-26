@@ -113,6 +113,8 @@ export default function NewMeetingForm() {
 
     try {
       await createMeeting({ variables: formState });
+
+      window.location.reload();
     } catch(e) {
       setWarning(e.message);
     }
@@ -153,15 +155,15 @@ export default function NewMeetingForm() {
           </div>
         </div>
         <div className="btn-group" ref={attendanceTypeSelectors} onClick={handleSemiRadioButtonsClick}>
-          <input value="all-teams" type="checkbox" className="btn-check" id="all-teams-check" autoComplete="off" defaultChecked={true} />
+          <input value="All teams" type="checkbox" className="btn-check" id="all-teams-check" autoComplete="off" defaultChecked={true} />
           <label className="btn btn-sm btn-outline-primary" htmlFor="all-teams-check">All teams</label>
-          <input value="executive" type="checkbox" className="btn-check" id="executive-check" autoComplete="off" />
+          <input value="Executive" type="checkbox" className="btn-check" id="executive-check" autoComplete="off" />
           <label className="btn btn-sm btn-outline-primary" htmlFor="executive-check">Executive</label>
-          <input value="telemetry" type="checkbox" className="btn-check" id="telemetry-check" autoComplete="off" />
+          <input value="Telemetry" type="checkbox" className="btn-check" id="telemetry-check" autoComplete="off" />
           <label className="btn btn-sm btn-outline-primary" htmlFor="telemetry-check">Telemetry</label>
-          <input value="structures" type="checkbox" className="btn-check" id="structures-check" autoComplete="off" />
+          <input value="Structures" type="checkbox" className="btn-check" id="structures-check" autoComplete="off" />
           <label className="btn btn-sm btn-outline-primary" htmlFor="structures-check">Structures</label>
-          <input value="research" type="checkbox" className="btn-check" id="research-check" autoComplete="off" />
+          <input value="Research" type="checkbox" className="btn-check" id="research-check" autoComplete="off" />
           <label className="btn btn-sm btn-outline-primary" htmlFor="research-check">Research</label>
         </div>
         <div className="d-flex gap-2 align-items-center form-check">

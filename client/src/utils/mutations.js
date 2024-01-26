@@ -59,4 +59,13 @@ export const CREATE_EMERGENCY_CONTACT = gql`
       relationship
     }
   }
-`
+`;
+
+export const ATTEND = gql`
+  mutation Mutation($meeting: ID!, $sareId: Int!) {
+    attend(meeting: $meeting, sareID: $sareId) {
+      _id
+      joinTime
+    }
+  }
+`;

@@ -27,3 +27,55 @@ query Members {
   }
 }
 `;
+
+export const LIST_MEETINGS = gql`
+  query Query {
+    meetings {
+      _id
+      title
+      at
+      type
+      teams
+      date
+      fromTime
+      toTime
+      execsAttended
+      numExecs
+      membersAttended
+    }
+  }
+`;
+
+export const GET_LATEST_MEETING = gql`
+  query Query {
+    latestMeeting {
+      _id
+      title
+      at
+      type
+      teams
+      date
+      fromTime
+      toTime
+      execsAttended
+      numExecs
+      membersAttended
+    }
+  }
+`;
+
+export const GET_ATTENDANCES = gql`
+  query Query($meeting: ID!) {
+    attendances(meeting: $meeting) {
+      joinTime
+      leaveTime
+      member {
+        firstName
+        lastName
+        sareID
+        rank
+      }
+      _id
+    }
+  }
+`;
