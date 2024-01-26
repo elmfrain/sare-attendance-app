@@ -27,3 +27,36 @@ export const CREATE_MEETING = gql`
     }
   }
 `;
+
+export const CREATE_MEMBER = gql`
+  mutation CreateMember($firstName: String!, $sareID: Int!, $email: String!, $rank: String!, $lastName: String!, $joinDate: String, $phone: String, $role: String, $emergencyContact: ID) {
+    createMember(firstName: $firstName, sareID: $sareID, email: $email, rank: $rank, lastName: $lastName, joinDate: $joinDate, phone: $phone, role: $role, emergencyContact: $emergencyContact) {
+      _id
+      firstName
+      lastName
+      joinDate
+      sareID
+      email
+      phone
+      rank
+      role
+      emergencyContact {
+        _id
+        name
+        relationship
+        phone
+      }
+    }
+  }
+`;
+
+export const CREATE_EMERGENCY_CONTACT = gql`
+  mutation CreateEmergencyContact($name: String!, $phone: String!, $relationship: String) {
+    createEmergencyContact(name: $name, phone: $phone, relationship: $relationship) {
+      _id
+      name
+      phone
+      relationship
+    }
+  }
+`
