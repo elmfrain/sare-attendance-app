@@ -183,7 +183,7 @@ export default function NewMeetingForm() {
           loading ? (
             <>
               <span className="spinner-border spinner-border-sm" aria-hidden="true"></span>
-              <span role="status">Creating...</span>
+              <span role="status"> Creating...</span>
             </>
           ) : ("Create")
         }
