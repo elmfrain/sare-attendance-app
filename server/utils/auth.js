@@ -22,9 +22,7 @@ module.exports = {
     try {
       const { data } = jwt.verify(token, process.env.JWT_SECRET, { maxAge: expiration });
       req.admin = data;
-    } catch {
-      console.log('Invalid Token')
-    }
+    } catch {}
 
     return req;
   },
