@@ -4,6 +4,7 @@ import RankTag from "./RankTag";
 import { useQuery, useMutation } from "@apollo/client";
 import { IS_EMAIL_TAKEN, IS_SAREID_TAKEN } from "../utils/queries";
 import { CREATE_EMERGENCY_CONTACT, CREATE_MEMBER } from "../utils/mutations";
+import EmergencyContactForm from "./EmergencyContactForm";
 
 const pfpStyle = {
   width: "1.5in",
@@ -136,53 +137,6 @@ export default function NewMemberForm() {
     addMemberButton.current.disabled = disableAddMemberButton || emWarning;
   }, [formState, emWarning]);
 
-  useEffect(() => {
-    if(emergencyContact.name?.length === 0) {
-      const { name, ...rest } = emergencyContact;
-      setEmergencyContact(rest);
-      setEMWarning(null);
-      return;
-    }
-
-    if(emergencyContact.relationship?.length === 0) {
-      const { relationship, ...rest } = emergencyContact;
-      setEmergencyContact(rest);
-      setEMWarning(null);
-      return;
-    }
-
-    const entires = Object.entries(emergencyContact);
-    if(entires.length === 0) return;
-
-    if(!emergencyContact.name || !emergencyContact.phone) {
-      setEMWarning("If you want to add emergency contact, please fill out at least name and phone number");
-      return;
-    }
-
-    setEMWarning(null);
-  }, [emergencyContact]);
-
-  function onEMPhoneInput(e) {
-    const phone = e.target.value;
-
-    if(!phone.length) {
-      const { phone, ...rest } = emergencyContact;
-      setEmergencyContact(rest);
-      e.target.classList.remove("is-invalid");
-      setEMWarning(null);
-      return;
-    }
-
-    if(!/^(\+\d{1,2}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/.test(phone)) {
-      e.target.classList.add("is-invalid");
-      setEMWarning("!Invalid phone number");
-      return;
-    }
-    setEMWarning(null);
-    e.target.classList.remove("is-invalid");
-    setEmergencyContact({ ...emergencyContact, phone });
-  }
-
   async function onSubmit(e) {
     e.preventDefault();
 
@@ -194,8 +148,11 @@ export default function NewMemberForm() {
       }
 
       await createMember({ variables: newMeber });
+
+      setWarning(null);
+      setEMWarning(null);
     } catch(e) {
-      setWarning(`!${e.message}`);
+      setWarning(e.message);
     }
   }
 
@@ -245,25 +202,24 @@ export default function NewMemberForm() {
             <input type="text" className="form-control" id="member-role" placeholder="Role" onInput={(e) => setFormState({ ...formState, role: e.target.value })} />
           </div>
           { warning ? <div className="my-0 form-text text-danger">{warning}</div> : null }
-          {/* Todo: Make separate component for emergency contact */}
-          <div className="d-flex gap-2 align-items-center">
-            <hr className="my-0 flex-grow-1" />
-            Emergency Contact
-            <hr className="my-0 flex-grow-1" />
-          </div>
-          <div className="input-group">
-            <span className="input-group-text">Name</span>
-            <input type="text" className="form-control" id="member-city" placeholder="First & Last" onInput={(e) => setEmergencyContact({ ...emergencyContact, name: e.target.value })}/>
-            <span className="input-group-text">Rel</span>
-            <input type="text" className="form-control" id="member-state" placeholder="Mother/Son" onInput={(e) => setEmergencyContact({ ...emergencyContact, relationship: e.target.value })} />
-            <span className="input-group-text">Phone</span>
-            <input type="text" className="form-control" id="member-zip" placeholder="(123) 456 7890" onInput={onEMPhoneInput} />
-          </div>
-          { emWarning ? <div className={`my-0 form-text text-${emWarning.startsWith("!") ? "danger" : "info"}`}>{emWarning.startsWith("!") ? emWarning.substring(1) : emWarning}</div> : null }
+          <EmergencyContactForm emergencyContact={emergencyContact} setEmergencyContact={setEmergencyContact} emWarning={emWarning} setEMWarning={setEMWarning} />
         </div>
       </div>
       <div className="card-footer d-flex justify-content-end">
-        <button type="submit" className="btn btn-primary" ref={addMemberButton}>Add Member</button>
+        <button type="submit" className="btn btn-primary" ref={addMemberButton}>{
+          newEmLoading ? 
+          <>
+          <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true" />
+          <span > Adding Emergency Contact...</span>
+          </>
+          : newMemberLoading ?
+          <>
+          <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true" />
+          <span > Adding Member...</span>
+          </>
+          : "Add Member"
+        }
+        </button>
       </div>
     </form>
     </div>
