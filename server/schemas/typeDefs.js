@@ -11,6 +11,7 @@ const typeDefs = `
   }
 
   type EmergencyContact {
+    _id: ID!
     name: String!
     relationship: String
     phone: String!
@@ -51,13 +52,18 @@ const typeDefs = `
   }
 
   type Query {
-    _dummy: String
+    memberBySareID(sareID: Int!): Member
+    memberByEmail(email: String!): Member
   }
 
   type Mutation {
     loginAdmin(username: String!, password: String!): Auth
 
     createMeeting(date: String!, type: String!, fromTime: String!, toTime: String!, title: String, at: String, teams: [String]): Meeting
+
+    createMember(firstName: String!, lastName: String!, sareID: Int!, email: String!, rank: String!, joinDate: String, phone: String, role: String, emergencyContact: ID): Member
+
+    createEmergencyContact(name: String!, phone: String!, relationship: String): EmergencyContact
   }
 `;
 

@@ -1,25 +1,6 @@
 const dayjs = require('dayjs');
 const mongoose = require('mongoose');
 
-const emergencyContactSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
-    maxLength: 512,
-  },
-  relationship: {
-    type: String,
-    maxLength: 128,
-    validate: [/^(?:[a-zA-Z ])*[\/\\\-]?(?:[a-zA-Z ])*$/, "Invalid relationship format"]
-  },
-  phone: {
-    type: String,
-    maxLength: 64,
-    validate: [/^(\+\d{1,2}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/, "Invalid phone number"],
-    required: true
-  }
-});
-
 const memberSchema = new mongoose.Schema({
   firstName: {
     type: String,
@@ -66,7 +47,10 @@ const memberSchema = new mongoose.Schema({
     maxLength: 128,
     trim: true
   },
-  emergencyContact: emergencyContactSchema
+  emergencyContact: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "EmergencyContact"
+  }
 });
 
 const Member = mongoose.model("Member", memberSchema);
