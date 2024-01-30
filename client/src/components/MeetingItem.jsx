@@ -47,7 +47,7 @@ export default function MeetingItem({meeting}) {
 
   return (
     <div className="card box-shadow meeting-item">
-      <div className="card-header d-flex align-items-center gap-2 text-secondary">
+      <div className="card-header d-flex align-items-center gap-2 flex-wrap text-secondary">
         <h4 className="my-0 text-body">{meeting.title}</h4>
         { meeting.at ? (<>| <span>Room 1.272</span></>) : null }
         |
@@ -55,16 +55,18 @@ export default function MeetingItem({meeting}) {
         |
         <span>{meeting.teams.join(", ")}</span>
       </div>
-      <div className="card-body d-flex gap-3 align-items-center">
-        <CalendarDayItem date={meeting.date}  />
-        <table>
-          <tbody>
-            <tr><th>From:</th><td>{fromTime}</td></tr>
-            <tr><th>To:</th><td>{toTime}</td></tr>
-            <tr><th>Duration:</th><td>{duration}</td></tr>
-          </tbody>
-        </table>
-        <div className="flex-grow-1" />
+      <div className="card-body d-flex flex-wrap flex-md-nowrap gap-3">
+        <div className="d-flex gap-3 align-items-center justify-content-evenly w-100 w-md-0">
+          <CalendarDayItem date={meeting.date}  />
+          <table>
+            <tbody>
+              <tr><th>From:</th><td>{fromTime}</td></tr>
+              <tr><th>To:</th><td>{toTime}</td></tr>
+              <tr><th>Duration:</th><td>{duration}</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div className="flex-grow-1 d-none d-md-block"/>
         <div className="d-flex flex-column align-items-start gap-1">
           <h4>Total Attendance: {meeting.execsAttended + meeting.membersAttended}</h4>
           <table>

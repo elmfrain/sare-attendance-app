@@ -129,6 +129,18 @@ d-grid {
   }
 }
 
+@include media-breakpoint-up(sm) {
+  .w-sm-0 {
+    width: unset !important;
+  }
+}
+
+@include media-breakpoint-up(md) {
+  .w-md-0 {
+    width: unset !important;
+  }
+}
+
 .sm-pfp {
   width: 1.5rem;
   height: 1.5rem;
