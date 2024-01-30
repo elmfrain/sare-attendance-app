@@ -36,6 +36,9 @@ export default function NewMeetingForm() {
 
   const[warning, setWarning] = useState(null);
   const[duration, setDuration] = useState("--");
+  const[isMobile, setIsMobile] = useState(window.innerWidth < 576);
+
+  window.addEventListener("resize", () => { setIsMobile(window.innerWidth < 576); });
 
   function onDateChange(e) {
     const toTime = timeRangeSelector.current.querySelector("#to-time").value.split(":");
@@ -133,18 +136,34 @@ export default function NewMeetingForm() {
           <span className="input-group-text" id="basic-addon1">@</span>
           <input type="text" className="form-control" placeholder="Room/URL" onInput={(e) => setFormState({ ...formState, at: e.target.value })} />
         </div>
-        <div className="d-flex gap-3 align-items-center">
+        <div className="d-flex gap-3 align-items-center justify-content-center flex-column flex-sm-row">
           <CalendarDayItem date={formState.date} />
-          <div className="d-flex flex-column gap-3 align-items-end flex-grow-1">
-            <div className="input-group">
-              <span className="input-group-text">Date</span>
-              <input type="date" className="form-control" ref={dateSelector} onChange={onDateChange} min={dayjs().format('YYYY-MM-DD')} defaultValue={dayjs().format('YYYY-MM-DD')}/>
-              <span className="input-group-text">Type</span>
-              <select className="form-select" onChange={(e) => setFormState({ ...formState, type: e.target.value })}>
-                <option value="on-site" >On-site</option>
-                <option value="remote" >Remote</option>
-              </select>
-            </div>
+          <div className="d-flex flex-column gap-3 align-items-end flex-grow-1 w-100">
+            {
+              isMobile ? (
+              <>
+                <div className="input-group">
+                  <span className="input-group-text">Date</span>
+                  <input type="date" className="form-control" ref={dateSelector} onChange={onDateChange} min={dayjs().format('YYYY-MM-DD')} defaultValue={dayjs().format('YYYY-MM-DD')}/>
+                </div>
+                <div className="input-group">
+                  <span className="input-group-text">Type</span>
+                  <select className="form-select" onChange={(e) => setFormState({ ...formState, type: e.target.value })}>
+                    <option value="on-site" >On-site</option>
+                    <option value="remote" >Remote</option>
+                  </select>
+                </div>
+              </>
+              ) : (
+              <div className="input-group">
+                <span className="input-group-text">Date</span>
+                <input type="date" className="form-control" ref={dateSelector} onChange={onDateChange} min={dayjs().format('YYYY-MM-DD')} defaultValue={dayjs().format('YYYY-MM-DD')}/>
+                <span className="input-group-text">Type</span>
+                <select className="form-select" onChange={(e) => setFormState({ ...formState, type: e.target.value })}>
+                  <option value="on-site" >On-site</option>
+                  <option value="remote" >Remote</option>
+                </select>
+              </div> )}
             <div className="input-group" ref={timeRangeSelector} onChange={onTimeRangeChange}>
               <span className="input-group-text">From</span>
               <input name="fromTime" id="from-time" type="time" className="form-control" />
@@ -154,7 +173,7 @@ export default function NewMeetingForm() {
             { duration && formState.date ? (<div><strong>Duration: </strong>{duration}</div>) : <strong className="text-danger">{ !duration ? "Invalid time range" : "Past date and time"}</strong> }
           </div>
         </div>
-        <div className="btn-group" ref={attendanceTypeSelectors} onClick={handleSemiRadioButtonsClick}>
+        <div className={`${isMobile ? "d-flex" : "btn-group"} gap-1 gap-sm-0 flex-column flex-sm-row`} ref={attendanceTypeSelectors} onClick={handleSemiRadioButtonsClick}>
           <input value="All teams" type="checkbox" className="btn-check" id="all-teams-check" autoComplete="off" defaultChecked={true} />
           <label className="btn btn-sm btn-outline-primary" htmlFor="all-teams-check">All teams</label>
           <input value="Executive" type="checkbox" className="btn-check" id="executive-check" autoComplete="off" />
