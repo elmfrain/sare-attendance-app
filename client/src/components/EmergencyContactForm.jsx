@@ -1,6 +1,10 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export default function EmergencyContactForm({ emergencyContact, setEmergencyContact, emWarning, setEMWarning}) {
+
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  window.addEventListener("resize", () => { setIsMobile(window.innerWidth < 768); });
   
   useEffect(() => {
     if(emergencyContact.name?.length === 0) {
@@ -58,14 +62,31 @@ export default function EmergencyContactForm({ emergencyContact, setEmergencyCon
       <hr className="my-0 flex-grow-1" />
     </div>
 
-    <div className="input-group">
-      <span className="input-group-text">Name</span>
-      <input type="text" className="form-control" placeholder="First Last" onChange={(e) => setEmergencyContact({ ...emergencyContact, name: e.target.value })} />
-      <span className="input-group-text">Rel</span>
-      <input type="text" className="form-control" placeholder="Relationship" onChange={(e) => setEmergencyContact({ ...emergencyContact, relationship: e.target.value })} />
-      <span className="input-group-text">Phone</span>
-      <input type="text" className="form-control" placeholder="Phone Number" onChange={onPhoneInput} />
-    </div>
+    { isMobile ? (
+      <div className="d-flex flex-column gap-2">
+        <div className="input-group">
+          <span className="input-group-text">Name</span>
+          <input type="text" className="form-control" placeholder="First Last" defaultValue={emergencyContact.name} onChange={(e) => setEmergencyContact({ ...emergencyContact, name: e.target.value })} />
+        </div>
+        <div className="input-group">
+          <span className="input-group-text">Rel</span>
+          <input type="text" className="form-control" placeholder="Relationship" defaultValue={emergencyContact.relationship} onChange={(e) => setEmergencyContact({ ...emergencyContact, relationship: e.target.value })} />
+        </div>
+        <div className="input-group">
+          <span className="input-group-text">Phone</span>
+          <input type="text" className="form-control" placeholder="Phone Number" defaultValue={emergencyContact.phone} onChange={onPhoneInput} />
+        </div>
+      </div>
+    ) : (
+      <div className="input-group">
+        <span className="input-group-text">Name</span>
+        <input type="text" className="form-control" placeholder="First Last" defaultValue={emergencyContact.name} onChange={(e) => setEmergencyContact({ ...emergencyContact, name: e.target.value })} />
+        <span className="input-group-text">Rel</span>
+        <input type="text" className="form-control" placeholder="Relationship" defaultValue={emergencyContact.relationship} onChange={(e) => setEmergencyContact({ ...emergencyContact, relationship: e.target.value })} />
+        <span className="input-group-text">Phone</span>
+        <input type="text" className="form-control" placeholder="Phone Number" defaultValue={emergencyContact.phone} onChange={onPhoneInput} />
+      </div>
+    )}
 
     { emWarning ? <div className={`my-0 form-text text-${emWarning.startsWith("!") ? "danger" : "info"}`}>{emWarning.startsWith("!") ? emWarning.substring(1) : emWarning}</div> : null }
     </>
