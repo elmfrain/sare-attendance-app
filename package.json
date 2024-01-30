@@ -1,12 +1,12 @@
 {
   "name": "sare-attendance-portal",
-  "version": "1.0.0",
+  "version": "0.5.0",
   "description": "Takes and keeps track of attedence of all members from S.A.R.E",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "install": "cd client && npm i && cd ../server && npm i",
-    "build": "cd client && npm run build",
+    "build": "cd tools && node save-version.js && cd ../client && npm run build",
     "develop": "concurrently \"cd server && npm run watch\" \"cd client && npm run dev\"",
     "start": "cd server && npm run start"
   },
