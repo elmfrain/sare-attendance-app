@@ -5,7 +5,7 @@ export default function Footer({theme, setTheme}) {
         <img src="/assets/images/logo/64.png"/>
         <div className="d-flex flex-column">
           Attendance Portal
-          <span className="fs-6 text-secondary">v1.2.3</span>
+          <span className="fs-6 text-secondary">Dev Build</span>
         </div>
       </a>
     </footer>
