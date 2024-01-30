@@ -20,9 +20,9 @@ async function runServer() {
   
   app.use(express.urlencoded({ extended: false }));
   app.use(express.json());
-  app.use(requireHTTPS);
 
   if (process.env.NODE_ENV === 'production') {
+    app.use(requireHTTPS);
     app.use(express.static(path.join(__dirname, "../client/dist")));
 
     app.get('*', (req, res) => {
