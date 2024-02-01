@@ -65,8 +65,8 @@ export const GET_LATEST_MEETING = gql`
 `;
 
 export const GET_ATTENDANCES = gql`
-  query Query($meeting: ID!, $sortBy: String, $order: String) {
-    attendances(meeting: $meeting, sortBy: $sortBy, order: $order) {
+  query Query($meeting: ID!) {
+    attendances(meeting: $meeting) {
       joinTime
       leaveTime
       member {
@@ -81,8 +81,8 @@ export const GET_ATTENDANCES = gql`
 `;
 
 export const GET_ABSENTEES = gql`
-  query Query($meeting: ID!, $sortBy: String, $order: String) {
-    absentees(meeting: $meeting, sortBy: $sortBy, order: $order) {
+  query Query($meeting: ID!) {
+    absentees(meeting: $meeting) {
       _id
       firstName
       lastName

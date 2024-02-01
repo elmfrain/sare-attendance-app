@@ -87,21 +87,43 @@ export default function AttendanceTable({attendances, refetch, meetingID}) {
   });
 
   useEffect(() => {
-    if(showAbsent && absentData){
-      const absences = absentData.absentees.map(absentee => { return {_id: absentee._id, member: absentee, joinTime: null, leaveTime: null} });
+    let newEntries;
 
-      setEntries(absences);
-    }
+    if(showAbsent && absentData)
+      newEntries = absentData.absentees.map(absentee => { return {_id: absentee._id, member: absentee, joinTime: null, leaveTime: null} });
     else
-      setEntries(attendances);
-  }, [showAbsent, absentData, attendances]);
+      newEntries = [...attendances];
+
+    const sortOrder = sortAscending ? -1 : 1;
+
+    switch(sortBy) {
+      case "first-name":
+        newEntries.sort((a, b) => sortOrder * a.member.firstName.localeCompare(b.member.firstName));
+        break;
+      case "last-name":
+        newEntries.sort((a, b) => sortOrder * a.member.lastName.localeCompare(b.member.lastName));
+        break;
+      case "rank":
+        const rankOrder = ["president", "executive", "acitve-member", "member"];
+        newEntries.sort((a, b) => sortOrder * (rankOrder.indexOf(a.member.rank) - rankOrder.indexOf(b.member.rank)));
+        break;
+      case "join-time":
+        newEntries.sort((a, b) => sortOrder * a.joinTime?.localeCompare(b.joinTime ? b.joinTime : ""));
+        break;
+      case "leave-time":
+        newEntries.sort((a, b) => sortOrder * a.leaveTime?.localeCompare(b.leaveTime ? b.leaveTime : ""));
+        break;
+    }
+
+    setEntries(newEntries);
+  }, [sortBy, sortAscending, showAbsent, absentData, attendances]);
 
   useEffect(() => {
     if(showAbsent)
-      refetchAbsences({meeting: meetingID, sortBy, order: sortAscending ? "ascending" : "descending"});
+      refetchAbsences({meeting: meetingID});
     else
       refetch({sortBy, order: sortAscending ? "ascending" : "descending"});
-  }, [sortBy, sortAscending, showAbsent, meetingID]);
+  }, [showAbsent, meetingID]);
 
   function toggleShowAbsent() {
     setShowAbsent(!showAbsent);
