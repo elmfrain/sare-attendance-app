@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import RankTag from "./RankTag";
 import SearchBar from "./SearchBar";
@@ -45,33 +45,44 @@ function MemberItem({ member }) {
   );
 }
 
-function Table({ membersData }) {
+function Table({ entries }) {
   return (
     <table className="w-100 attendance-table">
       <thead>
         <tr><th className="w-40">Member</th><th>Rank</th><th>SARE ID</th><th>Join Date</th></tr>
       </thead>
       <tbody>
-        { membersData ? membersData.members.map(member => <MemberRow member={member} key={member.sareID} />) : null }
+        { entries ? entries.map(member => <MemberRow member={member} key={member.sareID} />) : null }
       </tbody>
     </table>
   );
 }
 
-function List({ membersData }) {
+function List({ entries }) {
   return (
     <div className="list-group list-group-flush">
-      { membersData ? membersData.members.map(member => <MemberItem member={member} key={member.sareID} />) : null }
+      { entries ? entries.map(member => <MemberItem member={member} key={member.sareID} />) : null }
     </div>
   );
 }
 
 export default function MembersTable() {
-  const [sortBy, setSortBy] = useState("Rank");
+  const [sortBy, setSortBy] = useState("rank");
   const [sortAscending, setSortAcending] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [entries, setEntries] = useState([]);
 
-  const {loading: membersLoading, data: membersData} = useQuery(LIST_MEMBERS);
+  const {loading: membersLoading, data: membersData, refetch} = useQuery(LIST_MEMBERS, { variables: { sortBy, order: sortAscending ? "ascending" : "decending" } });
+
+  useEffect(() => {
+    refetch({ sortBy, order: sortAscending ? "ascending" : "decending" });
+  }, [sortBy, sortAscending]);
+
+  useEffect(() => {
+    if(membersData) {
+      setEntries(membersData.members);
+    }
+  }, [membersData]);
 
   window.addEventListener("resize", () => {
     setIsMobile(window.innerWidth < 768);
@@ -92,10 +103,10 @@ export default function MembersTable() {
         <div className="input-group rounded-pill w-0 flex-shrink-0">
           <button className="btn btn-primary btn-sm" onClick={toggleSortOrder}><i className={sortAscending ? "fa fa-sort-up" : "fa fa-sort-down"} /></button>
           <select className="btn btn-outline-primary btn-sm" defaultValue="rank" onChange={onSelectSort}>
-            <option value="name">Name</option>
+            <option value="first-name">First Name</option>
+            <option value="last-name">Last Name</option>
             <option value="rank">Rank</option>
-            <option value="join-time">Join Time</option>
-            <option value="leave-time">Leave Time</option>
+            <option value="join-date">Join Date</option>
           </select>
         </div>
         <span className={`spinner-border spinner-border-sm ${ membersLoading ? "" : "d-none" }`} role="status" aria-hidden="true" />
@@ -104,9 +115,9 @@ export default function MembersTable() {
       </div>
       <div className="card-body p-0">
         { isMobile ? (
-            <List membersData={membersData} />
+            <List entries={entries} />
           ) : (
-            <Table membersData={membersData} />
+            <Table entries={entries} />
           )
         }
       </div>

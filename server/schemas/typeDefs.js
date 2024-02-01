@@ -57,7 +57,7 @@ const typeDefs = `
   type Query {
     memberBySareID(sareID: Int!): Member
     memberByEmail(email: String!): Member
-    members: [Member]
+    members(sortBy: String, order: String): [Member]
 
     meetings: [Meeting]
     latestMeeting: Meeting

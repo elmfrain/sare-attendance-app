@@ -17,8 +17,8 @@ export const IS_EMAIL_TAKEN = gql`
 `;
 
 export const LIST_MEMBERS = gql`
-query Members {
-  members {
+query Members($sortBy: String, $order: String) {
+  members(sortBy: $sortBy, order: $order) {
     firstName
     lastName
     rank

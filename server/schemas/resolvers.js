@@ -27,7 +27,29 @@ const resolvers = {
       if(!context.admin)
         throw AuthenticationError;
 
-      return Member.find();
+      const members = await Member.find();
+
+      const sortOrder = !args.order || args.order === "ascending" ? -1 : 1;
+
+      switch(args.sortBy) {
+        case "first-name":
+          members.sort((a, b) => sortOrder * a.firstName.localeCompare(b.firstName));
+          break;
+        case "last-name":
+          members.sort((a, b) => sortOrder * a.lastName.localeCompare(b.lastName));
+          break;
+        case "rank":
+          const rankOrder = ["president", "executive", "active-member", "member"];
+          members.sort((a, b) => sortOrder * (rankOrder.indexOf(a.rank) - rankOrder.indexOf(b.rank)));
+          break;
+        case "join-date":
+          members.sort((a, b) => sortOrder * a.joinDate.localeCompare(b.joinDate));
+          break;
+        default:
+          break;
+      }
+
+      return members;
     },
 
     meetings: async (parent, args, context) => {
