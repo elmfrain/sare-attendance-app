@@ -54,6 +54,29 @@ const resolvers = {
 
       const attendances = await Attendance.find({ meeting: args.meeting }).populate("member");
 
+      const sortOrder = !args.order || args.order === "ascending" ? -1 : 1;
+      
+      switch(args.sortBy) {
+        case "first-name":
+          attendances.sort((a, b) => sortOrder * a.member.firstName.localeCompare(b.member.firstName));
+          break;
+        case "last-name":
+          attendances.sort((a, b) => sortOrder * a.member.lastName.localeCompare(b.member.lastName));
+          break;
+        case "rank":
+          const rankOrder = ["president", "executive", "active-member", "member"];
+          attendances.sort((a, b) => sortOrder * (rankOrder.indexOf(a.member.rank) - rankOrder.indexOf(b.member.rank)));
+          break;
+        case "join-time":
+          attendances.sort((a, b) => sortOrder * a.joinTime.localeCompare(b.joinTime));
+          break;
+        case "leave-time":
+          attendances.sort((a, b) => sortOrder * a.leaveTime.localeCompare(b.leaveTime));
+          break;
+        default:
+          break;
+      }
+
       return attendances;
     }
   },

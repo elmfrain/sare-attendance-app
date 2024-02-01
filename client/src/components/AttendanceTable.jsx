@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import RankTag from "./RankTag";
 
 import dayjs from "dayjs/esm";
@@ -6,13 +6,21 @@ import LocalizedFormat from "dayjs/plugin/localizedFormat";
 dayjs.extend(LocalizedFormat);
 
 function AttendanceRow({attendance}) {
+  let from = attendance.joinTime.split(":");
+  from = dayjs().hour(from[0]).minute(from[1]);
+  let to = attendance.leaveTime ? attendance.leaveTime.split(":") : null;
+  to = to ? dayjs().hour(to[0]).minute(to[1]) : null;
+
+  const joinTime = from.format('LT');
+  const leaveTime = to ? to.format('LT') : "--";
+
   return (
     <tr>
       <td>{attendance.member.firstName + " " + attendance.member.lastName}</td>
       <td>{attendance.member.sareID}</td>
       <td><RankTag rank={attendance.member.rank} /></td>
-      <td>{attendance.joinTime}</td>
-      <td>{attendance.leaveTime ? attendance.leaveTime : "--"}</td>
+      <td>{joinTime}</td>
+      <td>{leaveTime}</td>
     </tr>
   );
 }
@@ -62,15 +70,19 @@ function List({attendances}) {
   );
 }
 
-export default function AttendanceTable({attendances}) {
+export default function AttendanceTable({attendances, refetch}) {
   const [showAbsent, setShowAbsent] = useState(false);
-  const [sortBy, setSortBy] = useState("Rank");
+  const [sortBy, setSortBy] = useState("rank");
   const [sortAscending, setSortAcending] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
   window.addEventListener("resize", () => {
     setIsMobile(window.innerWidth < 768);
   });
+
+  useEffect(() => {
+    refetch({sortBy, order: sortAscending ? "ascending" : "descending"});
+  }, [sortBy, sortAscending]);
 
   function toggleShowAbsent() {
     setShowAbsent(!showAbsent);
@@ -94,7 +106,8 @@ export default function AttendanceTable({attendances}) {
             <div className="input-group rounded-pill w-0">
               <button className="btn btn-primary btn-sm" onClick={toggleSortOrder}><i className={sortAscending ? "fa fa-sort-up" : "fa fa-sort-down"} /></button>
               <select className="btn btn-outline-primary btn-sm" defaultValue="rank" onChange={onSelectSort}>
-                <option value="name">Name</option>
+                <option value="first-name">First Name</option>
+                <option value="last-name">Last Name</option>
                 <option value="rank">Rank</option>
                 <option value="join-time">Join Time</option>
                 <option value="leave-time">Leave Time</option>
