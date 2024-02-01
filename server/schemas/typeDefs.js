@@ -63,6 +63,7 @@ const typeDefs = `
     latestMeeting: Meeting
 
     attendances(meeting: ID!, sortBy: String, order: String): [Attendance]
+    absentees(meeting: ID!, sortBy: String, order: String): [Member]
   }
 
   type Mutation {

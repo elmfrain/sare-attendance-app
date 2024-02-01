@@ -78,6 +78,42 @@ const resolvers = {
       }
 
       return attendances;
+    },
+
+    absentees: async (parent, args, context) => {
+      if (!context.admin)
+        throw AuthenticationError;
+
+      const meeting = await Meeting.findById(args.meeting);
+      if (!meeting)
+        throw new Error("Meeting not found");
+
+      const members = await Member.find().limit(100);
+      const attendances = await Attendance.find({ meeting: args.meeting });
+
+      const absentees = members.filter(member => {
+        const attendance = attendances.find(attendance => attendance.member.toString() === member._id.toString());
+        return !attendance;
+      });
+
+      const sortOrder = !args.order || args.order === "ascending" ? -1 : 1;
+
+      switch(args.sortBy) {
+        case "first-name":
+          absentees.sort((a, b) => sortOrder * a.firstName.localeCompare(b.firstName));
+          break;
+        case "last-name":
+          absentees.sort((a, b) => sortOrder * a.lastName.localeCompare(b.lastName));
+          break;
+        case "rank":
+          const rankOrder = ["president", "executive", "active-member", "member"];
+          absentees.sort((a, b) => sortOrder * (rankOrder.indexOf(a.rank) - rankOrder.indexOf(b.rank)));
+          break;
+        default:
+          break;
+      }
+
+      return absentees;
     }
   },
 

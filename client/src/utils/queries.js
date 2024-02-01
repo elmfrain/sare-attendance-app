@@ -79,3 +79,15 @@ export const GET_ATTENDANCES = gql`
     }
   }
 `;
+
+export const GET_ABSENTEES = gql`
+  query Query($meeting: ID!, $sortBy: String, $order: String) {
+    absentees(meeting: $meeting, sortBy: $sortBy, order: $order) {
+      _id
+      firstName
+      lastName
+      sareID
+      rank
+    }
+  }
+`;

@@ -1,18 +1,27 @@
+import { useQuery } from "@apollo/client";
 import { useEffect, useState } from "react";
 import RankTag from "./RankTag";
 
 import dayjs from "dayjs/esm";
 import LocalizedFormat from "dayjs/plugin/localizedFormat";
+import { GET_ABSENTEES } from "../utils/queries";
 dayjs.extend(LocalizedFormat);
 
-function AttendanceRow({attendance}) {
-  let from = attendance.joinTime.split(":");
-  from = dayjs().hour(from[0]).minute(from[1]);
-  let to = attendance.leaveTime ? attendance.leaveTime.split(":") : null;
+function formatTimes(join, leave) {
+  let from = join ? join.split(":") : null;
+  from = from ? dayjs().hour(from[0]).minute(from[1]) : null;
+  let to = leave ? leave.split(":") : null;
   to = to ? dayjs().hour(to[0]).minute(to[1]) : null;
 
-  const joinTime = from.format('LT');
+  const joinTime = from ? from.format('LT') : "--";
   const leaveTime = to ? to.format('LT') : "--";
+
+  return { joinTime, leaveTime };
+}
+
+
+function AttendanceRow({attendance}) {
+  const { joinTime, leaveTime } = formatTimes(attendance.joinTime, attendance.leaveTime);
 
   return (
     <tr>
@@ -26,13 +35,7 @@ function AttendanceRow({attendance}) {
 }
 
 function AttendanceItem({attendance}) {
-  let from = attendance.joinTime.split(":");
-  from = dayjs().hour(from[0]).minute(from[1]);
-  let to = attendance.leaveTime ? attendance.leaveTime.split(":") : null;
-  to = to ? dayjs().hour(to[0]).minute(to[1]) : null;
-
-  const joinTime = from.format('LT');
-  const leaveTime = to ? to.format('LT') : "--";
+  const { joinTime, leaveTime } = formatTimes(attendance.joinTime, attendance.leaveTime);
 
   return (
     <div className="d-flex gap-3 align-items-center p-2 justify-content-between attendance-item">
@@ -70,19 +73,35 @@ function List({attendances}) {
   );
 }
 
-export default function AttendanceTable({attendances, refetch}) {
+export default function AttendanceTable({attendances, refetch, meetingID}) {
   const [showAbsent, setShowAbsent] = useState(false);
   const [sortBy, setSortBy] = useState("rank");
   const [sortAscending, setSortAcending] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  const { data: absentData, loading: absentLoading, refetch: refetchAbsences } = useQuery(GET_ABSENTEES);
+  const [entries, setEntries] = useState([]);
 
   window.addEventListener("resize", () => {
     setIsMobile(window.innerWidth < 768);
   });
 
   useEffect(() => {
-    refetch({sortBy, order: sortAscending ? "ascending" : "descending"});
-  }, [sortBy, sortAscending]);
+    if(showAbsent && absentData){
+      const absences = absentData.absentees.map(absentee => { return {_id: absentee._id, member: absentee, joinTime: null, leaveTime: null} });
+
+      setEntries(absences);
+    }
+    else
+      setEntries(attendances);
+  }, [showAbsent, absentData, attendances]);
+
+  useEffect(() => {
+    if(showAbsent)
+      refetchAbsences({meeting: meetingID, sortBy, order: sortAscending ? "ascending" : "descending"});
+    else
+      refetch({sortBy, order: sortAscending ? "ascending" : "descending"});
+  }, [sortBy, sortAscending, showAbsent, meetingID]);
 
   function toggleShowAbsent() {
     setShowAbsent(!showAbsent);
@@ -113,6 +132,7 @@ export default function AttendanceTable({attendances, refetch}) {
                 <option value="leave-time">Leave Time</option>
               </select>
             </div>
+            {absentLoading ? <span className="spinner-border spinner-border-sm" /> : null}
           </div>
         </div>
         <div className="flex-grow-1" />
@@ -120,9 +140,9 @@ export default function AttendanceTable({attendances, refetch}) {
       </div>
       <div className="card-body p-0">
         {isMobile ? (
-          <List attendances={attendances} />
+          <List attendances={entries} />
         ) : (
-          <Table attendances={attendances} />
+          <Table attendances={entries} />
         )}
       </div>
     </div>

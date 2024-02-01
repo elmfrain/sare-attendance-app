@@ -20,7 +20,7 @@ export default function AttendancePage() {
       { meetingData ? <MeetingItem meeting={meetingData.latestMeeting} /> : null }
       < AttendForm refetch={refetchLatestMeeting}  meeting={ meetingData ? meetingData.latestMeeting._id : null } />
       <div className={`spinner-border ${ attendanceLoading ? "" : "d-none"}`} />
-      { attendanceData ? <AttendanceTable attendances={attendanceData.attendances} refetch={refetchAttendances } /> : null }
+      { attendanceData ? <AttendanceTable attendances={attendanceData.attendances} refetch={refetchAttendances} meetingID={meetingData.latestMeeting._id} /> : null }
     </div>
   );
 }
