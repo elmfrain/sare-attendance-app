@@ -33,6 +33,11 @@ const typeDefs = `
     emergencyContact: EmergencyContact
   }
 
+  type MembersQuery {
+    members: [Member]
+    numPages: Int
+  }
+
   type Attendance {
     _id: ID!
     member: Member!
@@ -57,7 +62,7 @@ const typeDefs = `
   type Query {
     memberBySareID(sareID: Int!): Member
     memberByEmail(email: String!): Member
-    members(sortBy: String, order: String, search: String): [Member]
+    getMembers(sortBy: String, order: String, search: String, page: Int, nPerPage: Int): MembersQuery
 
     meetings: [Meeting]
     latestMeeting: Meeting

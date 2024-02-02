@@ -23,9 +23,12 @@ const resolvers = {
       return Member.findOne({email}).populate("emergencyContact");
     },
 
-    members: async (parent, args, context) => {
+    getMembers: async (parent, args, context) => {
       if(!context.admin)
         throw AuthenticationError;
+
+      const page = args.page || -1;
+      const nPerPage = args.nPerPage || 20;
 
       const searchSareID = !args.search ? {} : Number(args.search);
       const search = !args.search ? {} : { $or: [
@@ -56,7 +59,20 @@ const resolvers = {
           break;
       }
 
-      return members;
+      if(page > 0) {
+        const start = (page - 1) * nPerPage;
+        const end = start + nPerPage;
+        const membersPage = members.slice(start, end);
+        return {
+          members: membersPage,
+          numPages: Math.ceil(members.length / nPerPage)
+        }
+      }
+
+      return {
+        members,
+        numPages: 1
+      }
     },
 
     meetings: async (parent, args, context) => {

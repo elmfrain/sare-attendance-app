@@ -17,15 +17,18 @@ export const IS_EMAIL_TAKEN = gql`
 `;
 
 export const LIST_MEMBERS = gql`
-query Members($sortBy: String, $order: String, $search: String) {
-  members(sortBy: $sortBy, order: $order, search: $search) {
-    firstName
-    lastName
-    rank
-    sareID
-    joinDate
+  query Query($sortBy: String, $order: String, $search: String, $page: Int) {
+    getMembers(sortBy: $sortBy, order: $order, search: $search, page: $page) {
+      members {
+        firstName
+        lastName
+        rank
+        sareID
+        joinDate
+      }
+      numPages
+    }
   }
-}
 `;
 
 export const LIST_MEETINGS = gql`
