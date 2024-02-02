@@ -27,7 +27,14 @@ const resolvers = {
       if(!context.admin)
         throw AuthenticationError;
 
-      const members = await Member.find();
+      const searchSareID = !args.search ? {} : Number(args.search);
+      const search = !args.search ? {} : { $or: [
+        { firstName: { $regex: args.search, $options: "i" } },
+        { lastName: { $regex: args.search, $options: "i" } },
+        { sareID: searchSareID || 0 }]
+      };
+
+      const members = await Member.find(search);
 
       const sortOrder = !args.order || args.order === "ascending" ? -1 : 1;
 

@@ -96,6 +96,10 @@ export default function MembersTable() {
     setSortAcending(!sortAscending);
   }
 
+  function onSearch(query) {
+    refetch({ search: query });
+  }
+
   return (
     <div className="card box-shadow">
       <div className={`card-header d-flex gap-2 ${ isMobile ? "flex-column" : "align-items-center" }`}>
@@ -111,7 +115,7 @@ export default function MembersTable() {
         </div>
         <span className={`spinner-border spinner-border-sm ${ membersLoading ? "" : "d-none" }`} role="status" aria-hidden="true" />
         <div className={ isMobile ? "d-none" : "flex-grow-1"} />
-        <SearchBar />
+        <SearchBar onSearch={onSearch} />
       </div>
       <div className="card-body p-0">
         { isMobile ? (
